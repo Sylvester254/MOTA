@@ -3,6 +3,9 @@ from sqlite3 import Error
 
 
 class DatabaseConnection:
+    """
+    This class will handle the connection to the SQLite database.
+    """
     def __init__(self, db_file):
         """ Initialize db connection"""
         self.conn = None
