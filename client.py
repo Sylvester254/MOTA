@@ -85,20 +85,19 @@ class Client:
         self.db_connection.conn.commit()
 
 
-class ClientsPage:
-    def __init__(self, parent, db_connection):
-        self.client_manager = Client(db_connection)
+class ClientsPage(ttk.Frame):
+    def __init__(self, parent, db_connection, go_back_callback):
+        super().__init__(parent)
 
-        # Create a new top-level window
-        self.window = tk.Toplevel(parent)
-        self.window.title("My Clients")
+        self.client_manager = Client(db_connection)
+        self.go_back_callback = go_back_callback
 
         # Add New Client Button
-        add_client_button = ttk.Button(self.window, text="Add New Client", command=self.open_add_client_form)
+        add_client_button = ttk.Button(self, text="Add New Client", command=self.open_add_client_form)
         add_client_button.pack(pady=10)
 
         # Clients List (using Treeview)
-        self.clients_tree = ttk.Treeview(self.window, columns=("#", "Name", "Phone", "Email", "Notes"), show='headings')
+        self.clients_tree = ttk.Treeview(self, columns=("#", "Name", "Phone", "Email", "Notes"), show='headings')
         self.clients_tree.pack(expand=True, fill="both")
 
         # Define headings
@@ -109,13 +108,17 @@ class ClientsPage:
         self.load_clients_data()
 
         # Right-click menu
-        self.popup_menu = tk.Menu(self.window, tearoff=0)
+        self.popup_menu = tk.Menu(self, tearoff=0)
         self.popup_menu.add_command(label="Edit", command=self.open_edit_client_form)
         self.popup_menu.add_command(label="Delete", command=self.trigger_delete_client)
 
         # Bind right-click event
         self.clients_tree.bind("<Button-2>", self.show_context_menu)  # For macOS
         self.clients_tree.bind("<Button-3>", self.show_context_menu)  # For Windows and Linux
+
+        # Go Back Button
+        go_back_button = ttk.Button(self, text="Go Back", command=go_back_callback)
+        go_back_button.pack(pady=10)
 
     def show_context_menu(self, event):
         # Adjust to select the row under cursor
@@ -131,7 +134,7 @@ class ClientsPage:
         """
         Opens the Add Client Form
         """
-        AddClientForm(self.window, self.client_manager, self.load_clients_data)
+        AddClientForm(self.winfo_toplevel(), self.client_manager, self.load_clients_data)
 
     def load_clients_data(self):
         """
@@ -159,7 +162,7 @@ class ClientsPage:
         # Retrieve the client_id stored in the item's tag
         client_id = self.clients_tree.item(selected_item, 'tags')[0]
         client_id = int(client_id)
-        EditClientForm(self.window, self.client_manager, client_id, self.load_clients_data)
+        EditClientForm(self.winfo_toplevel(), self.client_manager, client_id, self.load_clients_data)
 
     def trigger_delete_client(self):
         selected_items = self.clients_tree.selection()

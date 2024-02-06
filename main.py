@@ -4,49 +4,63 @@ from client import ClientsPage
 from database import DatabaseConnection
 
 
-def open_transactions():
-    messagebox.showinfo("Info", "Transactions page here")
+class App:
+    def __init__(self, root, db_connection):
+        self.root = root
+        self.db_connection = db_connection
 
+        # Main menu frame
+        self.menu_frame = ttk.Frame(self.root)
+        self.setup_main_menu()
 
-def open_clients(root, db_connection):
-    # Function to open the Clients page
-    ClientsPage(root, db_connection)
+        # Clients frame
+        self.clients_frame = ClientsPage(self.root, db_connection, self.show_main_menu)
 
+        # Positioning frames using place
+        self.menu_frame.place(relwidth=1, relheight=1)
+        self.clients_frame.place(relwidth=1, relheight=1)
 
-def open_reports():
-    messagebox.showinfo("Info", "Reports page here")
+        # Initially, only the main menu is visible
+        self.menu_frame.lift()
+
+    def setup_main_menu(self):
+        welcome_label = ttk.Label(self.menu_frame, text="   Welcome to Freelance Earnings Manager!\nChoose an option from the menu to get started.", font=("Georgia", 16))
+        welcome_label.pack(pady=20)
+
+        transactions_button = ttk.Button(self.menu_frame, text="View Transactions", command=self.show_transactions)
+        transactions_button.pack(pady=(5, 1))
+
+        clients_button = ttk.Button(self.menu_frame, text="View Clients", command=self.show_clients)
+        clients_button.pack(pady=1)
+
+        reports_button = ttk.Button(self.menu_frame, text="View Reports", command=self.show_reports)
+        reports_button.pack(pady=(1, 5))
+
+    def show_main_menu(self):
+        self.clients_frame.lower()
+        self.menu_frame.lift()
+
+    def show_clients(self):
+        self.menu_frame.lower()
+        self.clients_frame.lift()
+
+    # Placeholder methods for transactions and reports
+    def show_transactions(self):
+        messagebox.showinfo("Info", "Transactions page here")
+
+    def show_reports(self):
+        messagebox.showinfo("Info", "Reports page here")
 
 
 def main():
     database_path = './mota.sqlite'
-
-    # create a database connection
     db_connection = DatabaseConnection(database_path)
 
-    # Set up the main window
     root = tk.Tk()
     root.title("Freelance Earnings Manager")
-    root.geometry('600x400')
+    root.geometry('1000x600')
 
-    # Welcome message
-    welcome_message = "Welcome to Freelance Earnings Manager!\n Choose an option from the menu to get started."
-    welcome_label = ttk.Label(root, text=welcome_message, font=("Arial", 12))
-    welcome_label.pack(pady=20)
-
-    # Menu buttons
-    menu_frame = ttk.Frame(root)
-    menu_frame.pack(pady=10)
-
-    transactions_button = ttk.Button(menu_frame, text="View Transactions", command=open_transactions)
-    transactions_button.pack(fill='x', expand=True)
-
-    clients_button = ttk.Button(menu_frame, text="View Clients", command=lambda: open_clients(root, db_connection))
-    clients_button.pack(fill='x', expand=True, pady=1)
-
-    reports_button = ttk.Button(menu_frame, text="View Reports", command=open_reports)
-    reports_button.pack(fill='x', expand=True)
-
-    # Start the application
+    app = App(root, db_connection)
     root.mainloop()
 
 
