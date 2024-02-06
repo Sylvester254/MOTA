@@ -1,5 +1,20 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+from client import ClientsPage
 from database import DatabaseConnection
-from client import Client
+
+
+def open_transactions():
+    messagebox.showinfo("Info", "Transactions page here")
+
+
+def open_clients(root, db_connection):
+    # Function to open the Clients page
+    ClientsPage(root, db_connection)
+
+
+def open_reports():
+    messagebox.showinfo("Info", "Reports page here")
 
 
 def main():
@@ -8,29 +23,31 @@ def main():
     # create a database connection
     db_connection = DatabaseConnection(database_path)
 
-    # create instance of the Client class
-    client_manager = Client(db_connection)
+    # Set up the main window
+    root = tk.Tk()
+    root.title("Freelance Earnings Manager")
+    root.geometry('600x400')
 
-    new_client_id = 1
+    # Welcome message
+    welcome_message = "Welcome to Freelance Earnings Manager!\n Choose an option from the menu to get started."
+    welcome_label = ttk.Label(root, text=welcome_message, font=("Arial", 12))
+    welcome_label.pack(pady=20)
 
-    # example adding new client
-    # new_client_id = client_manager.add_client("Alice Smith", "123-456-7890", "alice@example.com", "Regular client")
-    # print(f"Added new client with id: {new_client_id}")
+    # Menu buttons
+    menu_frame = ttk.Frame(root)
+    menu_frame.pack(pady=10)
 
-    # example updating client's details
-    # client_manager.update_client(new_client_id, "Alice Johnson", "123-456-7890", "alicej@example.com", "Updated info")
-    # print(f"Updated client with ID: {new_client_id}")
+    transactions_button = ttk.Button(menu_frame, text="View Transactions", command=open_transactions)
+    transactions_button.pack(fill='x', expand=True)
 
-    # # example deleting a client
-    # client_manager.delete_client(new_client_id)
-    # print(f"Deleted client with ID: {new_client_id}")
+    clients_button = ttk.Button(menu_frame, text="View Clients", command=lambda: open_clients(root, db_connection))
+    clients_button.pack(fill='x', expand=True, pady=1)
 
-    # Example retrieving client's details
-    client_details = client_manager.get_client(new_client_id)
-    print(f"Client's Details: {client_details}")
+    reports_button = ttk.Button(menu_frame, text="View Reports", command=open_reports)
+    reports_button.pack(fill='x', expand=True)
 
-    # close the db connection
-    db_connection.close_connection()
+    # Start the application
+    root.mainloop()
 
 
 if __name__ == '__main__':
