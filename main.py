@@ -27,7 +27,7 @@ class App:
         self.menu_frame.lift()
 
     def setup_main_menu(self):
-        welcome_label = ttk.Label(self.menu_frame, text="\n\n   Welcome to Freelance Earnings Manager!\nChoose an "
+        welcome_label = ttk.Label(self.menu_frame, text="\n\nWelcome to MOTA! Your Freelance Earnings Manager!\nChoose an "
                                                         "option from the menu to get started.", font=("Georgia", 16))
         welcome_label.pack(pady=20)
 
@@ -62,7 +62,7 @@ def main():
     db_connection = DatabaseConnection(database_path)
 
     root = tk.Tk()
-    root.title("Freelance Earnings Manager")
+    root.title("MOTA")
     root.geometry('1000x600')
 
     app = App(root, db_connection)

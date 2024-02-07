@@ -41,7 +41,7 @@ def main():
     # new_transaction_id = transaction_manager.add_transaction(client_id, amount, date, description)
     # print(f"Added new transaction with ID: {new_transaction_id}")
 
-    new_transaction_id = 11
+    new_transaction_id = 12
     # # Example: Updating a transaction's details
     # updated_amount = 5500.00
     # updated_description = "Project Payment - Final"

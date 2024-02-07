@@ -165,8 +165,31 @@ class TransactionsPage(ttk.Frame):
         self.daily_transactions_tree.heading("Work Description", text="Work Description")
         self.daily_transactions_tree.pack(expand=True, fill="both")
 
+        # Right-click menu
+        self.popup_menu = tk.Menu(self, tearoff=0)
+        self.popup_menu.add_command(label="Edit", command=self.open_edit_transactions_form)
+        self.popup_menu.add_command(label="Delete", command=self.trigger_delete_transactions)
+
+        # Bind right-click event
+        self.daily_transactions_tree.bind("<Button-2>", self.show_context_menu)  # For macOS
+        self.daily_transactions_tree.bind("<Button-3>", self.show_context_menu)  # For Windows and Linux
+
+    def show_context_menu(self, event):
+        # Adjust to select the row under cursor
+        row_id = self.daily_transactions_tree.identify_row(event.y)
+        if row_id:
+            self.daily_transactions_tree.selection_set(row_id)
+            # Retrieve the tag for the selected item, which contains the transaction ID
+            tags = self.daily_transactions_tree.item(row_id, 'tags')
+            if tags:
+                self.selected_transaction_id = tags[0]
+                try:
+                    self.popup_menu.tk_popup(event.x_root, event.y_root)
+                finally:
+                    self.popup_menu.grab_release()
+
     def open_add_transaction_form(self):
-        AddTransactionForm(self.winfo_toplevel(), self.transaction_manager, self.client_manager, self.refresh_callback)
+        AddTransactionForm(self.winfo_toplevel(), self.transaction_manager, self.client_manager, self.refresh_callback, self.refresh_daily_transactions)
 
     def refresh_callback(self):
         # Method to refresh transaction data display
@@ -197,22 +220,47 @@ class TransactionsPage(ttk.Frame):
 
     def show_daily_transactions(self, event):
         selected_item = self.monthly_totals_tree.selection()[0]
-        year = int(self.year_var.get())
-        month = self.monthly_totals_tree.item(selected_item, 'values')[0]
-        month_number = list(calendar.month_name).index(month)
+        self.selected_year = int(self.year_var.get())  # Store selected year as a class attribute
+        self.selected_month = self.monthly_totals_tree.item(selected_item, 'values')[0]  # Store selected month name
+        month_number = list(calendar.month_name).index(self.selected_month)
 
         # Fetch and display daily transactions
-        daily_transactions = self.transaction_manager.get_daily_transactions(year, month_number)
+        daily_transactions = self.transaction_manager.get_daily_transactions(self.selected_year, month_number)
         for i in self.daily_transactions_tree.get_children():
             self.daily_transactions_tree.delete(i)
 
         for date, transactions in daily_transactions.items():
             for transaction in transactions:
-                self.daily_transactions_tree.insert('', 'end', values=(date, transaction[2], transaction[4], transaction[3])) # date, amount, client, description
+                # date, amount, client, description, transaction id
+                self.daily_transactions_tree.insert('', 'end', values=(date, transaction[2], transaction[4], transaction[3]), tags=(transaction[0],))
+
+    def refresh_daily_transactions(self):
+        if hasattr(self, 'selected_year') and hasattr(self, 'selected_month'):
+            month_number = list(calendar.month_name).index(self.selected_month)
+            daily_transactions = self.transaction_manager.get_daily_transactions(self.selected_year, month_number)
+            for i in self.daily_transactions_tree.get_children():
+                self.daily_transactions_tree.delete(i)
+
+            for date, transactions in daily_transactions.items():
+                for transaction in transactions:
+                    self.daily_transactions_tree.insert('', 'end',
+                                                        values=(date, transaction[2], transaction[4], transaction[3]),
+                                                        tags=(transaction[0],))
+
+    def open_edit_transactions_form(self):
+        pass
+
+    def trigger_delete_transactions(self):
+        transaction_id = self.selected_transaction_id
+        if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this transaction? \n This move "
+                                                 "cannot be undone"):
+            self.transaction_manager.delete_transaction(transaction_id)
+            self.refresh_callback()  # Refresh the monthly transactions display
+            self.refresh_daily_transactions()  # Refresh daily transactions
 
 
 class AddTransactionForm:
-    def __init__(self, parent, transaction_manager, client_manager, refresh_callback):
+    def __init__(self, parent, transaction_manager, client_manager, refresh_callback, refresh_daily_transactions):
         self.window = tk.Toplevel(parent)
         self.window.title("Add New Transaction")
         self.window.geometry('300x400')
@@ -220,6 +268,7 @@ class AddTransactionForm:
         self.transaction_manager = transaction_manager
         self.client_manager = client_manager
         self.refresh_callback = refresh_callback
+        self.refresh_daily_transactions = refresh_daily_transactions
 
         # Form fields
         ttk.Label(self.window, text="Date:").pack(pady=(10, 0))
@@ -246,7 +295,7 @@ class AddTransactionForm:
     def populate_client_dropdown(self):
         clients = self.client_manager.get_all_clients()
         # Store clients as a list of tuples (client_name, client_id)
-        self.clients_list = [(client[1], client[0]) for client in clients]  # Assuming name is client[1] and ID is client[0]
+        self.clients_list = [(client[1], client[0]) for client in clients]
         self.client_combobox['values'] = [name for name, _ in self.clients_list]
 
     def submit(self):
@@ -273,4 +322,5 @@ class AddTransactionForm:
             messagebox.showerror("Error", f"An error occurred while adding the transaction: {e}")
         else:
             self.refresh_callback()  # Refresh the transactions list
+            self.refresh_daily_transactions()
             self.window.destroy()  # Close the form window
