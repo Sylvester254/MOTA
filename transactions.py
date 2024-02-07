@@ -1,8 +1,37 @@
 import tkinter as tk
-import datetime
 import calendar
 from tkinter import ttk, messagebox
 from client import Client
+from datetime import datetime
+
+
+def is_valid_date(date_str):
+    """
+    Check if the date string matches the expected format ("YYYY-MM-DD").
+    :param date_str: String representing the date entered on the form.
+    :return: Boolean if date is valid or not
+    """
+    try:
+        datetime.strptime(date_str, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
+
+
+MAX_TRANSACTION_AMOUNT = 99000000
+
+
+def is_valid_amount(amount_str):
+    """
+    Validate if the value is a number, it's non-negative and not exceeding maximum allowed amount for transactions.
+    :param amount_str: String representing the amount entered in the form.
+    :return: Boolean False if invalid amount and Float amount if valid.
+    """
+    try:
+        amount = float(amount_str)
+        return 0 <= amount <= MAX_TRANSACTION_AMOUNT
+    except ValueError:
+        return False
 
 
 class Transaction:
@@ -135,7 +164,7 @@ class TransactionsPage(ttk.Frame):
         self.year_dropdown = ttk.Combobox(control_frame, textvariable=self.year_var, state="readonly")
 
         # Populate the dropdown with years from 2010 to the current year
-        current_year = datetime.datetime.now().year
+        current_year = datetime.now().year
         self.year_dropdown['values'] = [year for year in range(2010, current_year + 1)]
         self.year_dropdown.set(current_year)  # Default to current year
         self.year_dropdown.pack(side=tk.LEFT)
@@ -157,7 +186,7 @@ class TransactionsPage(ttk.Frame):
         go_back_button.pack(pady=5)
 
         # Initialize and load data for the current year
-        current_year = str(datetime.datetime.now().year)
+        current_year = str(datetime.now().year)
         self.year_var.set(current_year)
         self.load_monthly_totals(current_year)
 
@@ -277,11 +306,11 @@ class AddTransactionForm:
         self.refresh_daily_transactions = refresh_daily_transactions
 
         # Form fields
-        ttk.Label(self.window, text="Date:").pack(pady=(10, 0))
+        ttk.Label(self.window, text="Date(YYYY-MM-DD):").pack(pady=(10, 0))
         self.date_entry = ttk.Entry(self.window)
         self.date_entry.pack()
 
-        ttk.Label(self.window, text="Amount:").pack()
+        ttk.Label(self.window, text="Amount(0 - 99,000,000):").pack()
         self.amount_entry = ttk.Entry(self.window)
         self.amount_entry.pack()
 
@@ -313,10 +342,18 @@ class AddTransactionForm:
         client_name = self.client_var.get()
         client_id = next((id for name, id in self.clients_list if name == client_name), None)
 
-        # Validate client selection
-        if not client_name:  # Checks if a client name has not been selected
+        # Perform validations
+        if not is_valid_date(date):
+            messagebox.showerror("Error", "Invalid date format. Please use YYYY-MM-DD.")
+            return
+
+        if not is_valid_amount(amount):
+            messagebox.showerror("Error", "Invalid amount. Enter amount between 0 and 99,000,000.")
+            return
+
+        if not client_name:
             messagebox.showwarning("Warning", "Please select a client.")
-            return  # Exit the method to prevent further execution
+            return
 
         # Additional validation to ensure client_id was successfully retrieved
         if client_id is None:
@@ -350,12 +387,12 @@ class EditTransactionForm:
         transaction_details = self.transaction_manager.get_transaction(transaction_id)
 
         # Form fields
-        ttk.Label(self.window, text="Date:").pack(pady=(10, 0))
+        ttk.Label(self.window, text="Date(YYYY-MM-DD):").pack(pady=(10, 0))
         self.date_entry = ttk.Entry(self.window)
         self.date_entry.insert(0, transaction_details[3])
         self.date_entry.pack()
 
-        ttk.Label(self.window, text="Amount:").pack()
+        ttk.Label(self.window, text="Amount(0 - 99,000,000):").pack()
         self.amount_entry = ttk.Entry(self.window)
         self.amount_entry.insert(0, transaction_details[2])
         self.amount_entry.pack()
@@ -411,7 +448,15 @@ class EditTransactionForm:
         client_name = self.client_combobox.get()
         client_id = self.client_id_by_name.get(client_name)
 
-        # Validate client selection
+        # Perform validations
+        if not is_valid_date(date):
+            messagebox.showerror("Error", "Invalid date format. Please use YYYY-MM-DD.")
+            return
+
+        if not is_valid_amount(amount):
+            messagebox.showerror("Error", "Invalid amount. Enter amount between 0 and 99,000,000.")
+            return
+
         if not client_id:
             messagebox.showerror("Error", "Please select a valid client.")
             return

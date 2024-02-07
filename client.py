@@ -2,6 +2,21 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 
 
+def is_valid_client(name, phone, email):
+    """
+    Ensure a client's name is provided and at least one contact method (phone or email) is not empty.
+    :param name: String representing the client's name.
+    :param phone_number: String representing the client's phone number.
+    :param email: String representing the client's email address.
+    :return: A Boolean and String message
+    """
+    if not name:
+        return False, "Name is required."
+    if not phone and not email:
+        return False, "At least one contact information (phone or email) is required."
+    return True, ""
+
+
 class Client:
     def __init__(self, db_connection):
         """
@@ -215,16 +230,26 @@ class AddClientForm:
 
     def submit(self):
         """
-        Method to handle the submission of the form
+        Method to handle the submission of the new client form
         """
         name = self.name_entry.get()
         phone = self.phone_entry.get()
         email = self.email_entry.get()
         notes = self.notes_entry.get()
 
-        self.client_manager.add_client(name, phone, email, notes)
-        self.refresh_callback()  # Refresh the clients list
-        self.window.destroy()  # Close the form window
+        # Validate client information
+        valid, message = is_valid_client(name, phone, email)
+        if not valid:
+            messagebox.showerror("Error", message)
+            return
+
+        try:
+            self.client_manager.add_client(name, phone, email, notes)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while adding the client: {e}")
+        else:
+            self.refresh_callback()
+            self.window.destroy()
 
 
 class EditClientForm:
@@ -274,12 +299,24 @@ class EditClientForm:
         submit_button.pack(pady=10)
 
     def submit(self):
-        # Update client information
+        """
+        Method to handle the submission of the update client form
+        """
         updated_name = self.name_entry.get()
         updated_phone = self.phone_entry.get()
         updated_email = self.email_entry.get()
         updated_notes = self.notes_entry.get()
 
-        self.client_manager.update_client(self.client_id, updated_name, updated_phone, updated_email, updated_notes)
-        self.refresh_callback()  # Refresh the clients list
-        self.window.destroy()  # Close the form window
+        # Validate client information
+        valid, message = is_valid_client(updated_name, updated_phone, updated_email)
+        if not valid:
+            messagebox.showerror("Error", message)
+            return
+
+        try:
+            self.client_manager.update_client(self.client_id, updated_name, updated_phone, updated_email, updated_notes)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while adding the client: {e}")
+        else:
+            self.refresh_callback()
+            self.window.destroy()

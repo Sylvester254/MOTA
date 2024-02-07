@@ -32,7 +32,7 @@ class App:
         self.menu_frame.lift()
 
     def setup_main_menu(self):
-        welcome_label = ttk.Label(self.menu_frame, text="\n\tWelcome to MOTA!\n   Your Freelance Earnings Manager!", font=("Georgia", 16, "bold"))
+        welcome_label = ttk.Label(self.menu_frame, text="\n\tWelcome to MOTA!\n   Your Freelance Earnings Manager!", font=("Georgia", 20, "bold"))
         welcome_label.pack(pady=20)
 
         transactions_button = ttk.Button(self.menu_frame, text="Transactions", command=self.show_transactions)
