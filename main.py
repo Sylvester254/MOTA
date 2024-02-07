@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, Tk
 from client import ClientsPage
 from database import DatabaseConnection
 from transactions import TransactionsPage
@@ -9,6 +9,11 @@ class App:
     def __init__(self, root, db_connection):
         self.root = root
         self.db_connection = db_connection
+
+        # Configure the style and apply a theme
+        self.style = ttk.Style()
+        # print(self.style.theme_names())
+        self.style.theme_use('aqua')  # 'aqua', 'clam', 'alt', 'default', 'classic'
 
         # Main menu frame
         self.menu_frame = ttk.Frame(self.root)
@@ -27,8 +32,7 @@ class App:
         self.menu_frame.lift()
 
     def setup_main_menu(self):
-        welcome_label = ttk.Label(self.menu_frame, text="\n\nWelcome to MOTA! Your Freelance Earnings Manager!\nChoose an "
-                                                        "option from the menu to get started.", font=("Georgia", 16))
+        welcome_label = ttk.Label(self.menu_frame, text="\n\tWelcome to MOTA!\n   Your Freelance Earnings Manager!", font=("Georgia", 16, "bold"))
         welcome_label.pack(pady=20)
 
         transactions_button = ttk.Button(self.menu_frame, text="Transactions", command=self.show_transactions)
