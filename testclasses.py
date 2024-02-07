@@ -15,7 +15,7 @@ def main():
     client_manager = Client(db_connection)
     transaction_manager = Transaction(db_connection)
 
-    new_client_id = 9
+    new_client_id = 3
 
     # example adding new client
     # new_client_id = client_manager.add_client("Jon Doe", "123-456-7890", "jd@example.com", "new client")
@@ -35,14 +35,13 @@ def main():
 
     # Example: Adding a new transaction
     client_id = new_client_id
-    amount = 5000.00
-    date = datetime.date.today().isoformat()  # Using today's date for the example
-    description = "software development"
+    amount = 4000.00
+    date = '2024-01-27'
+    description = "scripts"
     # new_transaction_id = transaction_manager.add_transaction(client_id, amount, date, description)
     # print(f"Added new transaction with ID: {new_transaction_id}")
 
-    new_transaction_id = 3
-
+    new_transaction_id = 11
     # # Example: Updating a transaction's details
     # updated_amount = 5500.00
     # updated_description = "Project Payment - Final"
