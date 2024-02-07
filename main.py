@@ -31,13 +31,13 @@ class App:
                                                         "option from the menu to get started.", font=("Georgia", 16))
         welcome_label.pack(pady=20)
 
-        transactions_button = ttk.Button(self.menu_frame, text="View Transactions", command=self.show_transactions)
+        transactions_button = ttk.Button(self.menu_frame, text="Transactions", command=self.show_transactions)
         transactions_button.pack(pady=(5, 1))
 
-        clients_button = ttk.Button(self.menu_frame, text="View Clients", command=self.show_clients)
+        clients_button = ttk.Button(self.menu_frame, text="Clients", command=self.show_clients)
         clients_button.pack(pady=1)
 
-        reports_button = ttk.Button(self.menu_frame, text="View Reports", command=self.show_reports)
+        reports_button = ttk.Button(self.menu_frame, text="Analysis Reports", command=self.show_reports)
         reports_button.pack(pady=(1, 5))
 
     def show_main_menu(self):

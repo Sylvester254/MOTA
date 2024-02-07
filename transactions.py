@@ -118,31 +118,35 @@ class TransactionsPage(ttk.Frame):
         self.client_manager = Client(db_connection)
         self.go_back_callback = go_back_callback
 
-        # Container frame for year dropdown and add transaction button
+        # Container frame for year dropdown, label, and add transaction button
         control_frame = ttk.Frame(self)
-        control_frame.pack(pady=10)
+        control_frame.pack(pady=10, fill=tk.X)
 
         # Add Transaction Button
         add_transaction_button = ttk.Button(control_frame, text="Add Transaction", command=self.open_add_transaction_form)
-        add_transaction_button.pack(side=tk.LEFT, padx=(10, 0))
+        add_transaction_button.pack(side=tk.LEFT, padx=(20, 20))
+
+        # Label for the year dropdown
+        year_label = ttk.Label(control_frame, text="Filter by year:")
+        year_label.pack(side=tk.LEFT, padx=(70, 0))
 
         # Dropdown to select year
         self.year_var = tk.StringVar()
-        self.year_dropdown = ttk.Combobox(self, textvariable=self.year_var, state="readonly")
+        self.year_dropdown = ttk.Combobox(control_frame, textvariable=self.year_var, state="readonly")
 
         # Populate the dropdown with years from 2010 to the current year
         current_year = datetime.datetime.now().year
         self.year_dropdown['values'] = [year for year in range(2010, current_year + 1)]
-        self.year_dropdown.set(current_year)
-        self.year_dropdown.pack()
+        self.year_dropdown.set(current_year)  # Default to current year
+        self.year_dropdown.pack(side=tk.LEFT)
 
         # Bind the selection event
         self.year_dropdown.bind("<<ComboboxSelected>>", self.on_year_selected)
 
         # Monthly totals list
-        self.monthly_totals_tree = ttk.Treeview(self, columns=("Month", "Total"), show='headings')
+        self.monthly_totals_tree = ttk.Treeview(self, columns=("Month", "Total Earnings"), show='headings')
         self.monthly_totals_tree.heading("Month", text="Month")
-        self.monthly_totals_tree.heading("Total", text="Total")
+        self.monthly_totals_tree.heading("Total Earnings", text="Total Earnings")
         self.monthly_totals_tree.pack(expand=True, fill="both")
 
         # Bind selection event
@@ -150,7 +154,7 @@ class TransactionsPage(ttk.Frame):
 
         # Go Back Button
         go_back_button = ttk.Button(self, text="Go Back", command=go_back_callback)
-        go_back_button.pack(pady=10)
+        go_back_button.pack(pady=5)
 
         # Initialize and load data for the current year
         current_year = str(datetime.datetime.now().year)
@@ -248,7 +252,9 @@ class TransactionsPage(ttk.Frame):
                                                         tags=(transaction[0],))
 
     def open_edit_transactions_form(self):
-        pass
+        transaction_id = self.selected_transaction_id
+        # Open the EditTransactionForm
+        EditTransactionForm(self.winfo_toplevel(), self.transaction_manager, self.client_manager, transaction_id, self.refresh_callback, self.refresh_daily_transactions)
 
     def trigger_delete_transactions(self):
         transaction_id = self.selected_transaction_id
@@ -283,6 +289,7 @@ class AddTransactionForm:
         self.description_entry = ttk.Entry(self.window)
         self.description_entry.pack()
 
+        ttk.Label(self.window, text="Client:").pack()
         self.client_var = tk.StringVar()
         self.client_combobox = ttk.Combobox(self.window, textvariable=self.client_var, state="readonly")
         self.populate_client_dropdown()
@@ -324,3 +331,98 @@ class AddTransactionForm:
             self.refresh_callback()  # Refresh the transactions list
             self.refresh_daily_transactions()
             self.window.destroy()  # Close the form window
+
+
+class EditTransactionForm:
+    def __init__(self, parent, transaction_manager, client_manager, transaction_id, refresh_callback, refresh_daily_transactions):
+        self.client_id_by_name = None
+        self.window = tk.Toplevel(parent)
+        self.window.title("Edit Transaction")
+        self.window.geometry('300x400')
+
+        self.transaction_manager = transaction_manager
+        self.transaction_id = transaction_id
+        self.client_manager = client_manager
+        self.refresh_callback = refresh_callback
+        self.refresh_daily_transactions = refresh_daily_transactions
+
+        # Fetch transaction details using transaction_id
+        transaction_details = self.transaction_manager.get_transaction(transaction_id)
+
+        # Form fields
+        ttk.Label(self.window, text="Date:").pack(pady=(10, 0))
+        self.date_entry = ttk.Entry(self.window)
+        self.date_entry.insert(0, transaction_details[3])
+        self.date_entry.pack()
+
+        ttk.Label(self.window, text="Amount:").pack()
+        self.amount_entry = ttk.Entry(self.window)
+        self.amount_entry.insert(0, transaction_details[2])
+        self.amount_entry.pack()
+
+        ttk.Label(self.window, text="Description:").pack()
+        self.description_entry = ttk.Entry(self.window)
+        self.description_entry.insert(0, transaction_details[4])
+        self.description_entry.pack()
+
+        ttk.Label(self.window, text="Client:").pack()
+        self.client_combobox = ttk.Combobox(self.window, state="readonly")
+        # Populate combobox with client names and set the current client
+        self.populate_client_dropdown(transaction_details[1])
+        self.client_combobox.pack()
+
+        # Submit button
+        submit_button = ttk.Button(self.window, text="Update", command=self.submit)
+        submit_button.pack(pady=10)
+
+    def populate_client_dropdown(self, current_client_id):
+        # Fetch all clients
+        clients = self.client_manager.get_all_clients()
+        client_names = []
+        client_ids = []
+        current_client_name = None
+
+        for client in clients:
+            # Assuming client structure is (client_id, client_name)
+            client_id, client_name = client[0], client[1]
+            client_names.append(client_name)
+            client_ids.append(client_id)
+            # Identify the current client's name
+            if client_id == current_client_id:
+                current_client_name = client_name
+
+        # Populate the combobox
+        self.client_combobox['values'] = client_names
+
+        # Set the current client as the default selection
+        if current_client_name:
+            self.client_combobox.set(current_client_name)
+        else:
+            print("Current client not found.")
+
+        # Store client IDs mapped by name for retrieval
+        self.client_id_by_name = dict(zip(client_names, client_ids))
+
+    def submit(self):
+        # Extract form data
+        date = self.date_entry.get()
+        amount = self.amount_entry.get()
+        description = self.description_entry.get()
+        client_name = self.client_combobox.get()
+        client_id = self.client_id_by_name.get(client_name)
+
+        # Validate client selection
+        if not client_id:
+            messagebox.showerror("Error", "Please select a valid client.")
+            return
+
+        # Update the transaction in the database
+        try:
+            self.transaction_manager.update_transaction(self.transaction_id, client_id, amount, date, description)
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while updating the transaction: {e}")
+        else:
+            self.refresh_callback()  # Refresh monthly transactions display
+            self.refresh_daily_transactions()  # Refresh daily transactions
+            self.window.destroy()  # Close the form window
+

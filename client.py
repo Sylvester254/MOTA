@@ -92,9 +92,10 @@ class ClientsPage(ttk.Frame):
         self.client_manager = Client(db_connection)
         self.go_back_callback = go_back_callback
 
-        # Add New Client Button
-        add_client_button = ttk.Button(self, text="Add New Client", command=self.open_add_client_form)
-        add_client_button.pack(pady=10)
+        control_frame = ttk.Frame(self)
+        control_frame.pack(pady=10, fill=tk.X)
+        add_client_button = ttk.Button(control_frame, text="Add New Client", command=self.open_add_client_form)
+        add_client_button.pack(side=tk.LEFT, padx=(20, 20))
 
         # Clients List (using Treeview)
         self.clients_tree = ttk.Treeview(self, columns=("#", "Name", "Phone", "Email", "Notes"), show='headings')
@@ -118,7 +119,7 @@ class ClientsPage(ttk.Frame):
 
         # Go Back Button
         go_back_button = ttk.Button(self, text="Go Back", command=go_back_callback)
-        go_back_button.pack(pady=10)
+        go_back_button.pack(pady=7)
 
     def show_context_menu(self, event):
         # Adjust to select the row under cursor
