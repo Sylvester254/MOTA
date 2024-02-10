@@ -65,4 +65,4 @@ The relationship between Clients and Transactions is one-to-many: one client can
 That's it! this should open the Tkinter GUI.
 
 - The sample data you'll see on the application exists in `finance_management.sqlite` database.
-- If you'd like to create a new database, just delete `mota.sqlite`, then run `python3 database.py` and this will create a new empty database for your use.
+- If you'd like to create a new database, just delete `finance_management.sqlite`, then run `python3 database.py` and this will create a new empty database for your use.
