@@ -6,7 +6,7 @@ from transactions import Transaction
 
 
 def main():
-    database_path = './mota.sqlite'
+    database_path = './finance_management.sqlite'
 
     # create a database connection
     db_connection = DatabaseConnection(database_path)

@@ -249,7 +249,8 @@ class TransactionsPage(ttk.Frame):
         for month_num, total in monthly_totals.items():
             # Convert month number to month name
             month_name = calendar.month_name[int(month_num)]
-            self.monthly_totals_tree.insert('', 'end', values=(month_name, total))
+            rounded_total = round(total, 2)
+            self.monthly_totals_tree.insert('', 'end', values=(month_name, rounded_total))
 
     def show_daily_transactions(self, event):
         selected_item = self.monthly_totals_tree.selection()[0]
