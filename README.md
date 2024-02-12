@@ -1,68 +1,55 @@
-# MOTA
+# MOTA [![PySide6](https://img.shields.io/badge/PySide6-blue?logo=qt&logoColor=red)](https://www.pythonguis.com/pyside6-book/)
 
-> A desktop application for managing your freelance earnings.
+*A finance management application designed for freelancers*
 
-- It focuses on displaying a high-level overview of your transactions (monthly totals) with the flexibility to drill down into more detailed views (daily transactions for a selected month). 
-- This design will help in quickly assessing your earnings trends and accessing specific transaction details as needed.
+## Description
 
-## Design
-### Database
+MOTA focuses on providing a clear overview of your freelance earnings. See monthly totals at a glance and easily drill down into daily transaction details for specific periods.  This empowers you to analyze your income trends quickly.
 
-1. **Clients Table**: Stores information about the clients.
-   - Fields: Client ID (primary key), Name, Phone number (optional), Email (optional), Additional Notes (optional).
+## Features
 
-2. **Transactions Table**: Stores details of each transaction.
-   - Fields: Transaction ID (primary key), Client ID (foreign key), Amount, Date of Transaction, Description (optional).
+**Current:**
 
-The relationship between Clients and Transactions is one-to-many: one client can have multiple transactions.
+* **Client Management:**
+    * Add, edit, and view client information.
+    * Delete clients without associated transactions.
+* **Income Management:**
+    * View monthly summaries by year.
+    * Track daily transactions.
+    * Add, edit, and delete transactions with ease.
 
-### User Interface Design
+**Planned:**
 
-1. **Client Management Section**:
-   - Add New Client: Form to enter client details.
-   - View/Edit Clients: List of clients with options to edit or delete(right-click for options).
-   - Delete a client (works only if client has no linked transactions)
+* **Visualizations:**  Charts and graphs showcasing earnings trends.
+* **Income Predictions:** Estimates for tax planning.
+* **Reports:** Comprehensive monthly summaries and detailed reports.
 
-2. **Transaction Management Section**:
-   - A dropdown to select a year. 
-   - A list to display month and monthly totals of selected year. 
-   - Another list or detailed view to show daily transactions when a month is selected. 
-   - Forms for adding or editing transactions(right-click transaction for Edit & Delete options).
-   - Option to delete a transaction.
-   
+## Technology Stack
 
-
-## File Structure and Contents
-
-`mota/`
-
-- **`database.py`**:
-    - This file contains the `DatabaseConnection` class for handling the database connection and creating the tables.
-- **`client.py`**:
-    - Includes the `Client` class with methods for adding, retrieving, updating, and deleting client data.
-    - Includes `ClientPage` class which is a subclass of main application window and has methods that now use tkinter for loading, 
-  displaying and manipulating client data in database via the Clients class methods.
-    - Has 'Go Back' button to navigate back to main menu.
-- **`transaction.py`**:
-    - Includes the `Transaction` class with methods for adding, retrieving, updating, and deleting transactions.
-    - Includes `TransactionsPage` class similar to `ClientsPage`, using a frame to manage the layout, but in this case for transactions data.
-    - Has 'Go Back' button to navigate back to main menu.
-- **`main.py`**:
-    - The entry point of the application, where I've integrated and used classes from other modules.
-    - Handles the application logic, UI interactions, and uses classes from `client.py` and `transaction.py`.
-    - Has `App` class which manages the main menu and the `ClientsPage` and `TransactionsPage` as frames within the same main window.
-    - Displays the menu for navigating to the clients page and transactions page.
+* [![Python](https://img.shields.io/badge/python-3973B3?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+* [![PySide6](https://img.shields.io/badge/PySide6-blue?logo=qt&logoColor=red)](https://www.pythonguis.com/pyside6-book/)
+* [![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/index.html)
 
 
-## User Guide
-- To start and interact with the desktop app via tkinter UI:
+## Project Structure
+```
+  project_root/
+      main.py               # Your application's entry point, UI setup
+      models.py             # Classes defining Client, Transaction, etc.
+      database.py           # Database interaction & query logic
+      ui/
+          __init__.py       # Makes ui a "package" if you add lots of UI files
+          client_view.py    # UI logic for the client section
+          transactions_view.py 
+          reports_view.py   # (for future reporting UI)
+      requirements.txt      # Python dependencies
+      tests/
+          test_client.py
+          test_income_records
 
-1. Ensure Python is properly installed on your system 
-2. Clone the repository locally: `git clone https://github.com/Sylvester254/MOTA`.
-3. Change directory to `mota` directory and create a virtual environment: `python3 -m venv <env name here>`.
-4. Activate the environment: `source <env name here>/bin/activate` (Mac/Linux) or `<env_name_here>\Scripts\activate` (Windows).
-5. Run `python3 main.py` in your terminal.
-That's it! this should open the Tkinter GUI.
+```
 
-- The sample data you'll see on the application exists in `finance_management.sqlite` database.
-- If you'd like to create a new database, just delete `finance_management.sqlite`, then run `python3 database.py` and this will create a new empty database for your use.
+## License
+
+Distributed under the GNU GPLv3 license.  See [LICENSE.txt](license.txt) for details.
+
