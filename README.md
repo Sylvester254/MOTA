@@ -34,18 +34,18 @@ MOTA focuses on providing a clear overview of your freelance earnings. See month
 ## Project Structure
 ```
   project_root/
-      main.py               # Your application's entry point, UI setup
-      models.py             # Classes defining Client, Transaction, etc.
+      main.py               # Application's entry point, UI setup
+      models.py             # Classes defining Client, Income records, etc.
       database.py           # Database interaction & query logic
       ui/
-          __init__.py       # Makes ui a "package" if you add lots of UI files
+          __init__.py       # Makes ui a "package"
           client_view.py    # UI logic for the client section
-          transactions_view.py 
+          income_records_view.py # UI logic for the income records section
           reports_view.py   # (for future reporting UI)
       requirements.txt      # Python dependencies
       tests/
-          test_client.py
-          test_income_records
+          test_client.py    # Test suite for Client class methods
+          test_income_records.py # Test suite for IncomeRecord class methods
 
 ```
 
