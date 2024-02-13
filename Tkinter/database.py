@@ -15,11 +15,13 @@ class DatabaseConnection:
         except Error as e:
             print(e)
 
-    def create_table(self, create_table_sql):
+    def create_table(self):
         """Create a table from the create_table_sql statement"""
         try:
             c = self.conn.cursor()
-            c.execute(create_table_sql)
+            c.execute(sql_create_clients_table)
+            c.execute(sql_create_transactions_table)
+            db.close_connection()
         except Error as e:
             print(e)
 
@@ -29,29 +31,28 @@ class DatabaseConnection:
             self.conn.close()
 
 
+# SQL for creating tables
+sql_create_clients_table = """ CREATE TABLE IF NOT EXISTS clients (
+                                    id integer PRIMARY KEY,
+                                    name text NOT NULL,
+                                    phone_number text,
+                                    email text,
+                                    notes text
+                                ); """
+
+sql_create_transactions_table = """ CREATE TABLE IF NOT EXISTS transactions (
+                                    id integer PRIMARY KEY,
+                                    client_id integer NOT NULL,
+                                    amount real NOT NULL,
+                                    date text NOT NULL,
+                                    description text,
+                                    FOREIGN KEY (client_id) REFERENCES clients (id)
+                                ); """
+
+
 if __name__ == '__main__':
     database = "./finance_management.sqlite"
 
-    # SQL for creating tables
-    sql_create_clients_table = """ CREATE TABLE IF NOT EXISTS clients (
-                                        id integer PRIMARY KEY,
-                                        name text NOT NULL,
-                                        phone_number text,
-                                        email text,
-                                        notes text
-                                    ); """
-
-    sql_create_transactions_table = """ CREATE TABLE IF NOT EXISTS transactions (
-                                        id integer PRIMARY KEY,
-                                        client_id integer NOT NULL,
-                                        amount real NOT NULL,
-                                        date text NOT NULL,
-                                        description text,
-                                        FOREIGN KEY (client_id) REFERENCES clients (id)
-                                    ); """
-
     # create a database connection and create tables
     db = DatabaseConnection(database)
-    db.create_table(sql_create_clients_table)
-    db.create_table(sql_create_transactions_table)
-    db.close_connection()
+    db.create_table()

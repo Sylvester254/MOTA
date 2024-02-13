@@ -58,11 +58,11 @@ class App:
         self.transactions_frame.lift()
 
     def show_reports(self):
-        messagebox.showinfo("Info", "Reports page under development")
+        messagebox.showinfo("Info", "Not Available")
 
 
 def main():
-    database_path = './finance_management.sqlite'
+    database_path = './Tkinter/finance_management.sqlite'
     db_connection = DatabaseConnection(database_path)
 
     root = tk.Tk()
